@@ -1,0 +1,44 @@
+steps:
+  - name: gcr.io/cloud-builders/docker
+    id: BUILD-IMAGE
+    args:
+      - 'build'
+      - '-t'
+      - 'us-east4-docker.pkg.dev/$PROJECT_ID/myrepository/container1'
+      - '.'
+
+  - name: gcr.io/cloud-builders/docker
+    id: PUSH-IMAGE
+    args:
+      - 'push'
+      - 'us-east4-docker.pkg.dev/$PROJECT_ID/myrepository/container1'
+
+  - name: gcr.io/cloud-builders/gcloud
+    id: IAM
+    entrypoint: bash
+    args:
+      - '-c'
+      - |
+        gcloud projects add-iam-policy-binding $PROJECT_ID \
+          --member=serviceAccount:413698792085@cloudbuild.gserviceaccount.com \
+          --role roles/iam.securityReviewer
+
+  - name: gcr.io/cloud-builders/kubectl
+    id: DEPLOY-PODS
+    env:
+      - 'CLOUDSDK_CONTAINER_CLUSTER=mycluster'
+      - 'CLOUDSDK_COMPUTE_ZONE=us-east4-c'
+    args:
+      - 'apply'
+      - '-f'
+      - 'deploy.yaml'
+
+  - name: gcr.io/cloud-builders/kubectl
+    id: SERVICE-DEPLOY
+    env:
+      - 'CLOUDSDK_CONTAINER_CLUSTER=mycluster'
+      - 'CLOUDSDK_COMPUTE_ZONE=us-east4-c'
+    args:
+      - 'apply'
+      - '-f'
+      - 'service.yaml'

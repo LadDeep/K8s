@@ -1,0 +1,24 @@
+steps:
+  - name: gcr.io/cloud-builders/docker
+    id: BUILD-IMAGE
+    args:
+      - 'build'
+      - '-t'
+      - 'us-east4-docker.pkg.dev/$PROJECT_ID/myrepository/container2'
+      - '.'
+
+  - name: gcr.io/cloud-builders/docker
+    id: PUSH-IMAGE
+    args:
+      - 'push'
+      - 'us-east4-docker.pkg.dev/$PROJECT_ID/myrepository/container2'
+
+  - name: gcr.io/cloud-builders/kubectl
+    id: DEPLOY-PODS
+    env:
+      - 'CLOUDSDK_CONTAINER_CLUSTER=mycluster'
+      - 'CLOUDSDK_COMPUTE_ZONE=us-east4-c'
+    args:
+      - 'apply'
+      - '-f'
+      - 'deploy.yaml'

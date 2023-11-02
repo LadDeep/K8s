@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: Deployment
+
+metadata:
+  name: pod-container-1
+
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: pod-container-1
+
+  template:
+    metadata:
+      labels:
+        app: pod-container-1
+
+    spec:
+      containers:
+      - name: container1
+        image: "us-east4-docker.pkg.dev/red-alloy-390215/myrepository/container1"
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 6000
+        volumeMounts:
+          - name: storage-volume
+            mountPath: /Deep_Pravinbhai_PV_dir
+
+      volumes:
+      - name: storage-volume
+        persistentVolumeClaim:
+          claimName: mypersistentvolume
+---
+apiVersion: v1
+kind: Service
+
+metadata:
+  name: loadbalancer-service
+
+spec:
+  selector:
+    app: pod-container-1
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 6000
+  type: LoadBalancer

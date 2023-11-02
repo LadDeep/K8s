@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+
+metadata:
+  name: pod-container-2
+
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: pod-container-2
+
+  template:
+    metadata:
+      labels:
+        app: pod-container-2
+
+    spec:
+      containers:
+      - name: container2
+        image: "us-east4-docker.pkg.dev/red-alloy-390215/myrepository/container2"
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 7001
+        volumeMounts:
+          - name: storage-volume
+            mountPath: /Deep_Pravinbhai_PV_dir
+
+      volumes:
+      - name: storage-volume
+        persistentVolumeClaim:
+          claimName: mypersistentvolume
